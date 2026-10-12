@@ -1,0 +1,17 @@
+{
+  "filas_totales": 150,
+  "filas_validas": 140,
+  "filas_invalidas": 10,
+  "importe_total": 96598.17,
+  "importe_por_region": {
+    "Este": 33122.53,
+    "Norte": 22914.63,
+    "Sur": 21396.35,
+    "Oeste": 19164.66
+  },
+  "top_productos": {
+    "Gateway": 40440.0,
+    "Hub IoT": 33058.66,
+    "Sensor B": 11568.66
+  }
+}
