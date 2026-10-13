@@ -1,0 +1,30 @@
+{
+  "filas_totales": 3000,
+  "filas_validas": 2984,
+  "filas_invalidas": 16,
+  "precio_medio_global": 322003.02,
+  "precio_m2_medio_global": 3152.8,
+  "precio_por_ciudad": {
+    "Barcelona": 396546.73,
+    "Madrid": 369290.16,
+    "Valencia": 199879.15
+  },
+  "precio_m2_por_ciudad": {
+    "Barcelona": 4098.97,
+    "Madrid": 3639.66,
+    "Valencia": 1716.4
+  },
+  "precio_por_habitaciones": {
+    "0": 221237.29,
+    "1": 226852.52,
+    "2": 257313.7,
+    "3": 277650.37,
+    "4": 414168.54,
+    "5": 827743.59,
+    "6": 907166.67,
+    "7": 841800.0,
+    "8": 1851500.0,
+    "9": 1085000.0,
+    "10": 1999000.0
+  }
+}
