@@ -26,3 +26,9 @@ build/
 .DS_Store
 .idea/
 .vscode/
+
+# Datos pesados
+*inmuebles_combined.csv
+
+# Raíz local
+/pytest.ini
