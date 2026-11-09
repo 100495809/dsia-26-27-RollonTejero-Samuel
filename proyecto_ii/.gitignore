@@ -1,0 +1,13 @@
+# Entornos virtuales
+.venv/
+env/
+venv/
+
+# Archivos de entorno y credenciales
+.env
+
+# Archivos compilados y temporales de Python
+__pycache__/
+*$py.class
+.pytest_cache/
+
