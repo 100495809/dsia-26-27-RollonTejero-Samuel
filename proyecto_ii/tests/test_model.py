@@ -87,7 +87,7 @@ def test_save_and_load_predictor(sample_training_data: pd.DataFrame, tmp_path: P
         "HASLIFT": 1,
     }
 
-    prediction = predictor.predict(sample_house)
+    prediction = predictor.predict_price(sample_house)
     assert isinstance(prediction, float)
     assert prediction > 0.0
 
