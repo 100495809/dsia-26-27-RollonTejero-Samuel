@@ -1,0 +1,7 @@
+{
+  "train_samples": 40,
+  "test_samples": 10,
+  "mae": 190373.63,
+  "rmse": 365807.72,
+  "r2_score": 0.5092
+}
