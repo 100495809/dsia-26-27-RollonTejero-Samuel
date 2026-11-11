@@ -13,7 +13,7 @@ logger = logging.getLogger(__name__)
 
 
 def format_geo_key(lat: float, lon: float) -> str:
-    """Aplica spatial binning redondeando coordenadas a 2 decimales y devuelve la clave"""
+    """Aplica  agrupación espacial redondeando coordenadas a 2 decimales y devuelve la clave"""
     return f"{round(lat, 2):.2f},{round(lon, 2):.2f}"
 
 
@@ -99,7 +99,7 @@ class NominatimClient:
         }
 
     def reverse_geocode(self, lat: float, lon: float) -> dict:
-        """Obtiene distrito y barrio para unas coordenadas usando spatial binning y caché"""
+        """Obtiene distrito y barrio para unas coordenadas mediante agrupación y caché"""
         lat_bin = round(lat, 2)
         lon_bin = round(lon, 2)
         key = format_geo_key(lat, lon)
