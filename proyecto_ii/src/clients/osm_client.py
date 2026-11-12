@@ -3,7 +3,6 @@ import json
 import logging
 import time
 from pathlib import Path
-from typing import Dict, Optional
 import requests
 
 from config.settings import settings
@@ -22,13 +21,7 @@ class NominatimClient:
 
     BASE_URL = "https://nominatim.openstreetmap.org/reverse"
 
-    def __init__(
-        self,
-        cache_path: Optional[Path] = None,
-        user_agent: Optional[str] = None,
-        delay: Optional[float] = None,
-        mock_mode: Optional[bool] = None,
-    ):
+    def __init__(self, cache_path=None, user_agent=None, delay=None, mock_mode=None):
         # Ruta del archivo JSON para almacenar la cache geográfica en disco
         if cache_path is not None:
             self.cache_path = cache_path
@@ -59,7 +52,7 @@ class NominatimClient:
         # Diccionario en memoria que contiene las coordenadas ya procesadas
         self.cache = self._load_cache()
 
-    def _load_cache(self) -> Dict[str, dict]:
+    def _load_cache(self) -> dict:
         """Carga el archivo de caché si existe o inicializa un diccionario vacío"""
         if self.cache_path.exists():
             try:

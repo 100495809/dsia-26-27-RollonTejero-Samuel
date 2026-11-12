@@ -6,7 +6,6 @@ import json
 import logging
 from pathlib import Path
 import sys
-from typing import Optional, Tuple
 
 import joblib
 import pandas as pd
@@ -34,7 +33,7 @@ BINARY_FEATURES = AMENITY_COLUMNS
 TARGET_COLUMN = "PRICE"
 
 
-def setup_logging() -> logging.Logger:
+def setup_logging():
     """Configura el sistema de logs para el entrenamiento"""
     log_level = getattr(logging, settings.LOG_LEVEL.upper(), logging.INFO)
     logging.basicConfig(
@@ -44,7 +43,7 @@ def setup_logging() -> logging.Logger:
     return logging.getLogger("trainer")
 
 
-def build_pipeline() -> Pipeline:
+def build_pipeline():
     """Construye el pipeline con preprocesador de columnas y regresor"""
     # Escalado para variables numericas
     numeric_transformer = StandardScaler()
@@ -70,7 +69,7 @@ def build_pipeline() -> Pipeline:
     return model_pipeline
 
 
-def train_and_evaluate(df: pd.DataFrame, test_size: float = 0.2, random_state: int = 42,) -> Tuple[Pipeline, dict]:
+def train_and_evaluate(df, test_size=0.2, random_state=42):
     """Entrena el modelo, calcula metricas de evaluacion y las devuelve en un diccionario"""
     log = logging.getLogger("trainer")
 
@@ -115,7 +114,7 @@ def train_and_evaluate(df: pd.DataFrame, test_size: float = 0.2, random_state: i
     return pipeline, metrics
 
 
-def save_model_artifacts(pipeline: Pipeline, metrics: dict, model_path: Optional[Path] = None, metrics_path: Optional[Path] = None,) -> Tuple[Path, Path]:
+def save_model_artifacts(pipeline, metrics, model_path=None, metrics_path=None):
     """Guarda el pipeline en formato joblib y las metricas en archivo JSON"""
     log = logging.getLogger("trainer")
 
@@ -146,12 +145,12 @@ def save_model_artifacts(pipeline: Pipeline, metrics: dict, model_path: Optional
 
 
 def run_training_flow(
-    data_path: Optional[Path] = None,
-    model_path: Optional[Path] = None,
-    metrics_path: Optional[Path] = None,
-    sample_size: Optional[int] = None,
-    mock_geo: bool = False,
-) -> Tuple[Pipeline, dict]:
+    data_path=None,
+    model_path=None,
+    metrics_path=None,
+    sample_size=None,
+    mock_geo=False,
+):
     """Orquesta la carga de datos, el entrenamiento y la persistencia de artefactos"""
     setup_logging()
     log = logging.getLogger("trainer")
@@ -173,7 +172,10 @@ def run_training_flow(
     if not source_path.exists():
         log.info("No se encontro archivo limpio, ejecutando preprocesamiento...")
         from src.clients.osm_client import NominatimClient
-        osm_client = NominatimClient(mock_mode=True) if mock_geo else None
+        if mock_geo:
+            osm_client = NominatimClient(mock_mode=True)
+        else:
+            osm_client = None
         df_clean, _ = run_pipeline(
             input_path=settings.get_absolute_path(settings.DATA_PATH),
             output_dir=settings.get_absolute_path("data"),

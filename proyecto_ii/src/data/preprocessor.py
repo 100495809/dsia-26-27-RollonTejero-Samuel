@@ -6,7 +6,6 @@ import json
 import logging
 from pathlib import Path
 import sys
-from typing import Optional, Tuple
 import pandas as pd
 
 # Asegurar que la raiz del proyecto se encuentra en sys path para ejecucion directa
@@ -39,7 +38,7 @@ AMENITY_COLUMNS = [
 ]
 
 
-def setup_logging(log_file: Optional[Path] = None) -> logging.Logger:
+def setup_logging(log_file=None):
     """Configura el sistema de logs para consola y opcionalmente archivo"""
     logger = logging.getLogger("preprocessor")
     log_level = getattr(logging, settings.LOG_LEVEL.upper(), logging.INFO)
@@ -58,14 +57,17 @@ def setup_logging(log_file: Optional[Path] = None) -> logging.Logger:
     return logger
 
 
-def load_raw_data(
-    file_path: Optional[Path] = None,
-    sample_size: Optional[int] = None,
-    logger: Optional[logging.Logger] = None,
-) -> pd.DataFrame:
+def load_raw_data(file_path=None, sample_size=None, logger=None):
     """Carga el archivo CSV crudo y valida que contenga las columnas obligatorias"""
-    log = logger or logging.getLogger("preprocessor")
-    path = file_path or settings.get_absolute_path(settings.DATA_PATH)
+    if logger is not None:
+        log = logger
+    else:
+        log = logging.getLogger("preprocessor")
+
+    if file_path is not None:
+        path = file_path
+    else:
+        path = settings.get_absolute_path(settings.DATA_PATH)
 
     log.info("Cargando datos desde %s", path)
     if not path.exists():
@@ -87,14 +89,17 @@ def load_raw_data(
     return df
 
 
-def enrich_with_geodata(
-    df: pd.DataFrame,
-    osm_client: Optional[NominatimClient] = None,
-    logger: Optional[logging.Logger] = None,
-) -> pd.DataFrame:
+def enrich_with_geodata(df, osm_client=None, logger=None):
     """Añade distrito, barrio y codigo postal redondeando decimales y con la cache de OSM"""
-    log = logger or logging.getLogger("preprocessor")
-    client = osm_client or NominatimClient()
+    if logger is not None:
+        log = logger
+    else:
+        log = logging.getLogger("preprocessor")
+
+    if osm_client is not None:
+        client = osm_client
+    else:
+        client = NominatimClient()
 
     work = df.copy()
 
@@ -134,12 +139,13 @@ def enrich_with_geodata(
     return work
 
 
-def clean_and_transform(
-    df: pd.DataFrame,
-    logger: Optional[logging.Logger] = None,
-) -> Tuple[pd.DataFrame, dict]:
+def clean_and_transform(df, logger=None):
     """Limpia tipos de datos, elimina outliers extremos y genera reporte de transformacion"""
-    log = logger or logging.getLogger("preprocessor")
+    if logger is not None:
+        log = logger
+    else:
+        log = logging.getLogger("preprocessor")
+
     work = df.copy()
 
     rows_in = len(work)
@@ -177,36 +183,53 @@ def clean_and_transform(
     clean_df = work.loc[valid_mask].copy().reset_index(drop=True)
     rows_out = len(clean_df)
     rows_dropped = rows_in - rows_out
-    error_rate = float(rows_dropped / rows_in) if rows_in > 0 else 0.0
+    if rows_in > 0:
+        error_rate = float(rows_dropped / rows_in)
+    else:
+        error_rate = 0.0
+
+    if rows_out > 0:
+        avg_price = round(float(clean_df["PRICE"].mean()), 2)
+        avg_constructed_area = round(float(clean_df["CONSTRUCTEDAREA"].mean()), 2)
+    else:
+        avg_price = 0.0
+        avg_constructed_area = 0.0
+
+    if "district" in clean_df.columns:
+        unique_districts = int(clean_df["district"].nunique())
+    else:
+        unique_districts = 0
 
     report = {
         "rows_in": rows_in,
         "rows_out": rows_out,
         "rows_dropped": rows_dropped,
         "error_rate": round(error_rate, 4),
-        "avg_price": round(float(clean_df["PRICE"].mean()), 2) if rows_out > 0 else 0.0,
-        "avg_constructed_area": round(float(clean_df["CONSTRUCTEDAREA"].mean()), 2) if rows_out > 0 else 0.0,
-        "unique_districts": int(clean_df["district"].nunique()) if "district" in clean_df.columns else 0,
+        "avg_price": avg_price,
+        "avg_constructed_area": avg_constructed_area,
+        "unique_districts": unique_districts,
     }
 
     log.info("Transformacion finalizada: %d filas de entrada, %d validas (descartadas: %d)", rows_in, rows_out, rows_dropped)
     return clean_df, report
 
 
-def save_processed_data(
-    df: pd.DataFrame,
-    report: dict,
-    output_dir: Path,
-    is_mock: bool = False,
-    logger: Optional[logging.Logger] = None,
-) -> Tuple[Path, Path]:
+def save_processed_data(df, report, output_dir, is_mock=False, logger=None):
     """Guarda el DataFrame limpio en CSV y el reporte de calidad en JSON diferenciando ejecuciones mock"""
-    log = logger or logging.getLogger("preprocessor")
+    if logger is not None:
+        log = logger
+    else:
+        log = logging.getLogger("preprocessor")
+
     output_dir.mkdir(parents=True, exist_ok=True)
 
     # Separar archivos para que las ejecuciones de prueba con mock nunca sobrescriban los datos reales
-    data_filename = "madrid_mock_limpio.csv" if is_mock else "madrid_limpio.csv"
-    report_filename = "data_quality_report_mock.json" if is_mock else "data_quality_report.json"
+    if is_mock:
+        data_filename = "madrid_mock_limpio.csv"
+        report_filename = "data_quality_report_mock.json"
+    else:
+        data_filename = "madrid_limpio.csv"
+        report_filename = "data_quality_report.json"
 
     data_output = output_dir / data_filename
     report_output = output_dir / report_filename
@@ -220,17 +243,16 @@ def save_processed_data(
     return data_output, report_output
 
 
-def run_pipeline(
-    input_path: Optional[Path] = None,
-    output_dir: Optional[Path] = None,
-    sample_size: Optional[int] = None,
-    osm_client: Optional[NominatimClient] = None,
-) -> Tuple[pd.DataFrame, dict]:
+def run_pipeline(input_path=None, output_dir=None, sample_size=None, osm_client=None):
     """Orquesta la carga, enriquecimiento y limpieza completa de datos"""
     logger = setup_logging()
     logger.info("Iniciando pipeline de preprocesamiento de datos")
 
-    client = osm_client or NominatimClient()
+    if osm_client is not None:
+        client = osm_client
+    else:
+        client = NominatimClient()
+
     is_mock = bool(client.mock_mode)
 
     df_raw = load_raw_data(input_path, sample_size=sample_size, logger=logger)
@@ -252,7 +274,10 @@ if __name__ == "__main__":
     parser.add_argument("--mock-geo", action="store_true", help="Forzar modo mock en geocodificacion")
     args = parser.parse_args()
 
-    client = NominatimClient(mock_mode=True) if args.mock_geo else None
+    if args.mock_geo:
+        client = NominatimClient(mock_mode=True)
+    else:
+        client = None
 
     run_pipeline(
         input_path=args.input,
