@@ -35,9 +35,8 @@ TARGET_COLUMN = "PRICE"
 
 def setup_logging():
     """Configura el sistema de logs para el entrenamiento"""
-    log_level = getattr(logging, settings.LOG_LEVEL.upper(), logging.INFO)
     logging.basicConfig(
-        level=log_level,
+        level=logging.INFO,
         format="%(asctime)s | %(levelname)s | %(name)s | %(message)s",
     )
     return logging.getLogger("trainer")

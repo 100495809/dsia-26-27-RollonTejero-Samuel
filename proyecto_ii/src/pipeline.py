@@ -22,9 +22,8 @@ logger = logging.getLogger("pipeline")
 
 def setup_logging() -> logging.Logger:
     """Configura el sistema de logs para el pipeline de inferencia"""
-    log_level = getattr(logging, settings.LOG_LEVEL.upper(), logging.INFO)
     logging.basicConfig(
-        level=log_level,
+        level=logging.INFO,
         format="%(asctime)s | %(levelname)s | %(name)s | %(message)s",
     )
     return logging.getLogger("pipeline")

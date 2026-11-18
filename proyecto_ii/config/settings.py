@@ -9,10 +9,6 @@ load_dotenv(_base_dir / ".env")
 
 
 class Settings:
-    # Entorno general
-    APP_ENV = os.getenv("APP_ENV", "development")
-    LOG_LEVEL = os.getenv("LOG_LEVEL", "INFO")
-
     # Rutas base del proyecto
     BASE_DIR = _base_dir
     DATA_PATH = Path(os.getenv("DATA_PATH", "data/madrid.csv"))
