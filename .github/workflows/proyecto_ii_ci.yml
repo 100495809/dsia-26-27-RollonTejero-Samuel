@@ -1,0 +1,34 @@
+name: CI Proyecto II
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: proyecto_ii
+    steps:
+      - name: Descargar repositorio
+        uses: actions/checkout@v4
+
+      - name: Instalar uv
+        uses: astral-sh/setup-uv@v5
+        with:
+          version: "latest"
+          enable-cache: true
+
+      - name: Configurar variables de entorno de prueba
+        run: |
+          cp .env.example .env
+
+      - name: Instalar dependencias del proyecto
+        run: |
+          uv sync
+
+      - name: Ejecutar batería de tests y cobertura
+        run: |
+          uv run pytest --cov=src --cov=main --cov-report=term-missing
