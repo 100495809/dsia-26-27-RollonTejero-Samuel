@@ -1,0 +1,23 @@
+# Entornos virtuales
+.venv/
+env/
+venv/
+
+# Archivos de entorno y credenciales
+.env
+
+# Archivos compilados y temporales de Python
+__pycache__/
+pycache_*/
+*.pyc
+*.pyo
+*.pyd
+.pytest_cache/
+
+# Archivos generados en ejecución
+data/geo_cache.json
+data/*limpio.csv
+data/data_quality_report*.json
+
+# Modelos
+# models/
